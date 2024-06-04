@@ -1,0 +1,47 @@
+networks:
+  impelIt-net:
+    external: true
+
+services:
+
+  web:
+    image: ${COMPOSE_PROJECT_NAME}-web:${DOCKER_BUILD_MODE:-prod}
+    build:
+      context: ../
+      dockerfile: docker/web/web.Dockerfile
+    tty: true
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  app:
+    image: ${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
+    build:
+      context: ../
+      dockerfile: docker/app/app.Dockerfile
+      args:
+        - BUILD_MODE=${DOCKER_BUILD_MODE:-prod}
+        - TIMEZONE=${APP_TIMEZONE:-Asia/Dhaka}
+        - UID=${UID}
+        - GID=${GID}
+        - SHOULD_CHOWN_TO_APP=false
+
+  redis:
+    image: redis:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mysql:
+    image: 'mysql:${MYSQL_IMAGE_TAG}'
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --local-infile=1
+      - --secure-file-priv=/sqls
+
+  scheduler:
+    image: ${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
+    restart: always
+    tty: true
+
