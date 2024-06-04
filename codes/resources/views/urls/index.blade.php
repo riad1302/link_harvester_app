@@ -3,61 +3,103 @@
 @section('title', 'List URLs')
 
 @section('content')
-    <div x-data="urlList()" x-init="fetchUrls()">
-        <form @submit.prevent="fetchUrls" class="mb-4">
-            <input type="text" x-model="search" placeholder="Search URLs" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Search</button>
-        </form>
-        <table class="min-w-full bg-white">
-            <thead>
-            <tr>
-                <th class="py-2 px-4 border-b">#</th>
-                <th class="py-2 px-4 border-b">URL</th>
-                <th class="py-2 px-4 border-b">Domain</th>
-            </tr>
-            </thead>
-            <tbody>
-            <template x-for="url in urls" :key="url.id">
+    <div x-data="crudApp()">
+        <div class="container mx-auto mt-5">
+            <div class="mb-4 flex items-center">
+                <div class="relative flex-grow">
+                    <input type="text" x-model="search" placeholder="Search..." class="border p-2 w-full pr-10" @input="toggleSearchButton">
+                    <button x-show="search.trim().length > 0" @click="clearSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9.293l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414L10 8.586z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <button @click="fetchItems()" class="bg-blue-500 text-white px-4 py-2 ml-2">Search</button>
+            </div>
+
+            <table class="min-w-full bg-white">
+                <thead>
                 <tr>
-                    <td class="py-2 px-4 border-b" x-text=""></td>
-                    <td class="py-2 px-4 border-b" x-text="url.url"></td>
-                    <td class="py-2 px-4 border-b" x-text="url.domain.name"></td>
+                    <th @click="sortBy('url')" class="py-2 px-4 border-b cursor-pointer w-2/3">URL</th>
+                    <th @click="sortBy('domain')" class="py-2 px-4 border-b cursor-pointer">Domain</th>
                 </tr>
-            </template>
-            </tbody>
-        </table>
-        <div x-html="pagination"></div>
+                </thead>
+                <tbody>
+                <template x-for="item in items" :key="item.id">
+                    <tr>
+                        <td x-text="item.url" class="border px-4 py-2"></td>
+                        <td x-text="item.domain.name" class="border px-4 py-2"></td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+
+            <div class="mt-4">
+                <button @click="fetchItems(currentPage - 1)" :disabled="currentPage === 1" class="bg-gray-500 text-white px-4 py-2">Previous</button>
+                <span x-text="currentPage" class="px-4 py-2"></span>
+                <button @click="fetchItems(currentPage + 1)" :disabled="currentPage === lastPage" class="bg-gray-500 text-white px-4 py-2">Next</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        function urlList() {
+        function crudApp() {
             return {
+                items: [],
+                currentPage: 1,
+                lastPage: 1,
                 search: '',
-                urls: [],
-                pagination: '',
-                fetchUrls() {
-                    fetch(`{{ route('urls.index')}}?search=${this.search}`, {
+                sortColumn: 'url',
+                sortDirection: 'asc',
+
+                fetchItems(page = 1) {
+                    const params = new URLSearchParams({
+                        page: page,
+                        search: this.search,
+                        sort: this.sortColumn,
+                        direction: this.sortDirection
+                    });
+
+                    fetch(`/?${params.toString()}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest' // Ensure this header is set
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
+                        .then(response => response.json())
                         .then(data => {
-                            this.urls = data.urls.data;
-                            this.pagination = data.pagination;
-                        })
-                        .catch(error => {
-                            console.error('There was a problem with the fetch operation:', error);
+                            console.log(data)
+                            this.items = data.data;
+                            this.currentPage = data.current_page;
+                            this.lastPage = data.last_page;
                         });
+                },
+
+                sortBy(column) {
+                    this.sortDirection = this.sortColumn === column ? (this.sortDirection === 'asc' ? 'desc' : 'asc') : 'asc';
+                    this.sortColumn = column;
+                    this.fetchItems();
+                },
+
+                clearSearch() {
+                    this.search = '';
+                    this.fetchItems();
+                },
+
+                editItem(item) {
+                    // Add edit logic here
+                },
+
+                deleteItem(id) {
+                    fetch(`/items/${id}`, { method: 'DELETE' })
+                        .then(() => this.fetchItems(this.currentPage));
+                },
+
+                toggleSearchButton() {
+                    // This method is not needed anymore since the visibility is handled by Alpine's x-show
                 }
             };
         }
-
     </script>
+
 @endsection
