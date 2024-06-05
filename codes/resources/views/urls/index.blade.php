@@ -3,7 +3,7 @@
 @section('title', 'List URLs')
 
 @section('content')
-    <div x-data="crudApp()">
+    <div x-data="crudApp()" x-init="fetchItems()">
         <div class="container mx-auto mt-5">
             <div class="mb-4 flex items-center">
                 <div class="relative flex-grow">
@@ -84,15 +84,6 @@
                 clearSearch() {
                     this.search = '';
                     this.fetchItems();
-                },
-
-                editItem(item) {
-                    // Add edit logic here
-                },
-
-                deleteItem(id) {
-                    fetch(`/items/${id}`, { method: 'DELETE' })
-                        .then(() => this.fetchItems(this.currentPage));
                 },
 
                 toggleSearchButton() {

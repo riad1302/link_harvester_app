@@ -28,4 +28,17 @@ class Url extends Model
                 });
         });
     }
+
+    public function scopeSort($query, $sort, $sortDirection = 'asc')
+    {
+        return $query->when($sort, function ($query, $sort) use ($sortDirection) {
+            if ($sort == 'domain') {
+                $query->join('domains', 'urls.domain_id', '=', 'domains.id')
+                    ->orderBy('domains.name', $sortDirection)
+                    ->select('urls.*');
+            } else {
+                $query->orderBy($sort, $sortDirection);
+            }
+        });
+    }
 }
