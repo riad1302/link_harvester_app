@@ -25,6 +25,8 @@ services:
         - UID=${UID}
         - GID=${GID}
         - SHOULD_CHOWN_TO_APP=false
+    depends_on:
+      - mysql
 
   redis:
     image: redis:latest
@@ -40,8 +42,8 @@ services:
       - --local-infile=1
       - --secure-file-priv=/sqls
 
-  scheduler:
-    image: ${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
-    restart: always
-    tty: true
+#  scheduler:
+#    image: ${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
+#    restart: always
+#    tty: true
 

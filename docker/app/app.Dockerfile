@@ -9,7 +9,7 @@ ARG TIMEZONE="Asia/Dhaka"
 ARG HOST_APP_ROOT_DIR="./codes/"
 ARG WORK_DIR_PATH="/var/www/html"
 
-# Setup some enviornment variables.
+# Setup some environment variables.
 ENV TZ="${TIMEZONE}" \
     COMPOSER_VERSION="2.5.4" \
     COMPOSER_HOME="/usr/local/composer"
@@ -30,6 +30,7 @@ RUN echo "-- Configure Timezone --" \
             openssl \
             unzip \
             zip \
+            supervisor \
     && echo "-- Install Extra APT Dependencies --" \
         && if [ ! -z "${EXTRA_INSTALL_APT_PACKAGES}" ]; then \
             apt install -y ${EXTRA_INSTALL_APT_PACKAGES} \
@@ -79,7 +80,8 @@ RUN groupadd --gid ${GID} app \
 USER app
 
 # Add our own Additional Entrypoints
-#COPY --chown=app:app ./docker/app/docker-entrypoint.sh /docker-entrypoint.sh
+COPY --chown=app:app ./docker/app/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR ${WORK_DIR_PATH}
 
@@ -101,11 +103,12 @@ COPY --chown=app:app ${HOST_APP_ROOT_DIR}routes ./routes
 COPY --chown=app:app ${HOST_APP_ROOT_DIR}storage ./storage
 COPY --chown=app:app ${HOST_APP_ROOT_DIR}artisan ./
 
+# Copy Supervisor configuration file
+COPY --chown=app:app ./docker/app/supervisord.conf /etc/supervisor/supervisord.conf
+
 # Composer Dump-Autoload
 RUN composer install --no-dev --optimize-autoloader --classmap-authoritative
 
-#RUN chmod ugo+x /docker-entrypoint.sh
-#
-#ENTRYPOINT [ "/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 
 CMD [ "php-fpm" ]
