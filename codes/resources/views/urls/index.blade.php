@@ -36,7 +36,7 @@
                 </tbody>
             </table>
 
-            <div class="mt-4 flex items-center">
+            <div x-show="totalRows > 20" class="mt-4 flex items-center">
                 <button @click="fetchItems(currentPage - 1)" :disabled="currentPage === 1" class="bg-gray-500 text-white px-4 py-2">Previous</button>
                 <span x-text="currentPage" class="px-4 py-2"></span>
                 <span>/</span>
