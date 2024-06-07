@@ -1,0 +1,37 @@
+networks:
+  impelIt-net:
+    external: true
+
+services:
+
+  web:
+    image: ${DOCKER_HUB_USERNAME}/${COMPOSE_PROJECT_NAME}-web:${DOCKER_BUILD_MODE:-prod}
+    tty: true
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  app:
+    image: ${DOCKER_HUB_USERNAME}/${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
+    depends_on:
+      - mysql
+
+  redis:
+    image: redis:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mysql:
+    image: 'mysql:${MYSQL_IMAGE_TAG}'
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --local-infile=1
+      - --secure-file-priv=/sqls
+
+#  scheduler:
+#    image: ${COMPOSE_PROJECT_NAME}-app:${DOCKER_BUILD_MODE:-prod}
+#    restart: always
+#    tty: true
+
