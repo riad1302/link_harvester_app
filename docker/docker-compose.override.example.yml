@@ -60,23 +60,13 @@ services:
         aliases:
           - impelIt-mysql
 
-  scheduler:
-    env_file:
-      - .envs/app.env
-      - .envs/php-ini.env
-    volumes:
-      - ../codes:/var/www/html
-    entrypoint: |
-      bash -c 'while :; do php /var/www/html/artisan queue:work --verbose --no-interaction & sleep 60; done'
-    depends_on:
-      - mysql
-    environment:
-      - DB_HOST=impelIt-mysql
-      - DB_PORT=3306
-      - DB_DATABASE=link_harvester
-      - DB_USERNAME=root
-      - DB_PASSWORD=secret
-    networks:
-      impelIt-net:
-        aliases:
-          - impelIt-scheduler
+#  scheduler:
+#    env_file:
+#      - .envs/app.env
+#      - .envs/php-ini.env
+#    volumes:
+#      - ../codes:/var/www/html
+#    networks:
+#      impelIt-net:
+#        aliases:
+#          - impelIt-scheduler

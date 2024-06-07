@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidUrls;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UrlSubmissionRequest extends FormRequest
@@ -22,7 +23,7 @@ class UrlSubmissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'urls' => 'required|string',
+            'urls' => ['required', 'string', new ValidUrls()],
         ];
     }
 }

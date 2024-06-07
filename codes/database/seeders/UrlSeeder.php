@@ -17,7 +17,7 @@ class UrlSeeder extends Seeder
         $domains = Domain::all();
 
         foreach ($domains as $domain) {
-            Url::factory()->count(50)->create([
+            Url::factory()->count(10)->create([
                 'domain_id' => $domain->id,
             ]);
         }
