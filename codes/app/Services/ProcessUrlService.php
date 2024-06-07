@@ -35,7 +35,7 @@ class ProcessUrlService
                 $batchSize = config('constans.batch_size');
 
                 // Step 1: Find all existing domains in one query
-                $existingDomains = Domain::whereIn('name', $this->domainNames)->pluck('id', 'name')->toArray();
+                $existingDomains = $this->getDomainName($this->domainNames);
 
                 // Step 2: Identify new domains
                 $newDomains = array_diff($this->domainNames, array_keys($existingDomains));
@@ -51,7 +51,7 @@ class ProcessUrlService
                     }
 
                     // Fetch IDs of newly inserted domains
-                    $newDomains = Domain::whereIn('name', $newDomains)->pluck('id', 'name')->toArray();
+                    $newDomains = $this->getDomainName($newDomains);
                     $existingDomains = array_merge($existingDomains, $newDomains);
                 }
                 // Prepare URL data with domain IDs
@@ -79,5 +79,10 @@ class ProcessUrlService
                 'trace' => $exception->getTraceAsString(),
             ]);
         }
+    }
+
+    private function getDomainName(array $domainNames): array
+    {
+       return Domain::whereIn('name', $domainNames)->pluck('id', 'name')->toArray();
     }
 }
