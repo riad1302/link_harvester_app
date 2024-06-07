@@ -13,7 +13,7 @@
 <body class="bg-gray-100">
 <header class="bg-gray-800 text-white py-4">
     <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold">My App</h1>
+        <h1 class="text-2xl font-bold">Link Harvester App</h1>
         <nav>
             <ul class="flex space-x-4">
                 <li><a href="{{ route('urls.index') }}" class="hover:text-gray-300">Home</a></li>

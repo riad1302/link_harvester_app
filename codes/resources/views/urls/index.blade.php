@@ -20,13 +20,15 @@
             <table class="min-w-full bg-white">
                 <thead>
                 <tr>
+                    <th class="py-2 px-4 border-b cursor-pointer w-1.5">#</th>
                     <th @click="sortBy('url')" class="py-2 px-4 border-b cursor-pointer w-2/3">URL</th>
                     <th @click="sortBy('domain')" class="py-2 px-4 border-b cursor-pointer">Domain</th>
                 </tr>
                 </thead>
                 <tbody>
-                <template x-for="item in items" :key="item.id">
+                <template x-for="(item, index) in items" :key="item.id">
                     <tr>
+                        <td x-text="(currentPage - 1) * 20 + index + 1" class="border px-4 py-2"></td>
                         <td x-text="item.url" class="border px-4 py-2"></td>
                         <td x-text="item.domain.name" class="border px-4 py-2"></td>
                     </tr>
@@ -34,10 +36,13 @@
                 </tbody>
             </table>
 
-            <div class="mt-4">
+            <div class="mt-4 flex items-center">
                 <button @click="fetchItems(currentPage - 1)" :disabled="currentPage === 1" class="bg-gray-500 text-white px-4 py-2">Previous</button>
                 <span x-text="currentPage" class="px-4 py-2"></span>
+                <span>/</span>
+                <span x-text="lastPage" class="px-4 py-2"></span>
                 <button @click="fetchItems(currentPage + 1)" :disabled="currentPage === lastPage" class="bg-gray-500 text-white px-4 py-2">Next</button>
+                <span class="ml-4">Total rows: <span x-text="totalRows"></span></span>
             </div>
         </div>
     </div>
@@ -51,6 +56,7 @@
                 search: '',
                 sortColumn: 'url',
                 sortDirection: 'asc',
+                totalRows: 0,
 
                 fetchItems(page = 1) {
                     const params = new URLSearchParams({
@@ -72,6 +78,7 @@
                             this.items = data.data;
                             this.currentPage = data.current_page;
                             this.lastPage = data.last_page;
+                            this.totalRows = data.total;
                         });
                 },
 
