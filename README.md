@@ -25,6 +25,7 @@
     cp mysql.env.example mysql.env
     cp php-ini.env.example php-ini.env
     cp redis.env.example redis.env
+    docker network create impelIt-net
     docker-compose build
     docker-compose up -d
     docker-compose exec -it app composer install
