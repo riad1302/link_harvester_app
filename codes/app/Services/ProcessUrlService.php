@@ -83,6 +83,6 @@ class ProcessUrlService
 
     private function getDomainName(array $domainNames): array
     {
-       return Domain::whereIn('name', $domainNames)->pluck('id', 'name')->toArray();
+        return Domain::whereIn('name', $domainNames)->pluck('id', 'name')->toArray();
     }
 }
