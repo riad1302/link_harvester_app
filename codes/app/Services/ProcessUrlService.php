@@ -31,7 +31,7 @@ class ProcessUrlService
     {
         try {
             DB::transaction(function () {
-                $batchSize = config('constans.batch_size');
+                $batchSize = config('constants.batch_size');
 
                 $existingDomains = $this->fetchExistingDomains($this->domainNames) ?? [];
 
